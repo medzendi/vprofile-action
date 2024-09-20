@@ -98,17 +98,7 @@ jobs:
 
       #- name: Login to ECR
       #  run: kubectl create secret docker-registry regcred --ignore-not-found --docker-server=${{ secrets.REGISTRY }} --docker-username=AWS  --docker-password=$(aws ecr get-login-password) 
-      - name: Delete existing regcred secret if it exists
-        run: |
-             kubectl delete secret regcred --ignore-not-found
-  
-      - name: Create new regcred secret
-        run: |
-            aws ecr get-login-password --region ${{ env.AWS_REGION }} | kubectl create secret docker-registry regcred \
-            --docker-server=${{ secrets.REGISTRY }} \
-            --docker-username=AWS \
-            --docker-password=$(aws ecr get-login-password --region ${{ env.AWS_REGION }})
-            
+      
       - name: Deploy Helm
         uses: bitovi/github-actions-deploy-eks-helm@v1.2.8
         with:
@@ -121,6 +111,15 @@ jobs:
           namespace: default
           values: appimage=${{ secrets.REGISTRY }}/${{ env.ECR_REPOSITORY }},apptag=${{ github.run_number }}
           name: vprofile-stack
+
+      - name: Update or create regcred secret
+        run: |
+            kubectl delete secret regcred --ignore-not-found
+            aws ecr get-login-password --region ${{ env.AWS_REGION }} | kubectl create secret docker-registry regcred \
+            --docker-server=${{ secrets.REGISTRY }} \
+            --docker-username=AWS \
+            --docker-password=$(aws ecr get-login-password --region ${{ env.AWS_REGION }})
+              
      
 
                  
