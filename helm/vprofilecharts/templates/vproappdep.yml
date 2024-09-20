@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: vproapp
-        image: {{ .Value.appimg }}:{{ .Value.apptag }}
+        image: {{ .Value.appimage }}:{{ .Value.apptag }}
         ports:
         - name: vproapp-port
           containerPort: 8080
